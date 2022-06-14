@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://unpkg.com/jspsych@7.0.0"></script>
+  <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@1.0.0"></script>
+  <script src="https://unpkg.com/@jspsych/plugin-html-button-response@1.1.1"></script>
+  <script src="https://unpkg.com/@jspsych/plugin-audio-keyboard-response@1.1.1"></script>
+  <script src="https://unpkg.com/@jspsych/plugin-preload@1.1.1"></script>
+  <link href="https://unpkg.com/jspsych@7.0.0/css/jspsych.css" rel="stylesheet" type="text/css" />
+</head>
+<body></body>
+<script>
+
+  var jsPsych = initJsPsych({
+    default_iti: 250, 
+    on_finish: function() {
+      jsPsych.data.displayData();
+    }
+  });
+
+  var audio = ['audio/hz200_num2.mp3','audio/hz200_num9.mp3','audio/hz900_num2.mp3','audio/hz900_num9.mp3'];
+
+  var preload = {
+    type: jsPsychPreload,
+    audio: audio
+  };
+
+  var pre_audio = {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: '<div style="max-width:600px;"><p>Some browsers now require the user to interact with a page before it can play audio. Clicking the button below counts as an interaction.</p><p>Be aware of this when planning audio experiments if you want the first trial to include audio.</p></div>'
+      + '<p>If you hear 1 tone, press the number 1 on the keyboard as fast as you can.</p><p>If you hear 2 tones, press the number 2 on the keyboard as fast as you can.</p>',
+    choices: ['Continue']
+  }
+
+  /* timeline.push(pre_audio);*/
+
+  /* create timeline */
+  var timeline = [];
+
+  var test_stimuli = [
+    { stimulus: 'audio/hz200_num2.mp3',  correct_response: "1"},
+    { stimulus: 'audio/hz200_num9.mp3',  correct_response: "1"},
+    { stimulus: 'audio/hz900_num2.mp3',  correct_response: "1"},
+    { stimulus: 'audio/hz900_num9.mp3',  correct_response: "1"}
+    ];
+
+
+  var audio_trial = {
+    type: jsPsychAudioKeyboardResponse,
+    stimulus: jsPsych.timelineVariable('stimulus'),
+    choices: ['1 tone', '2 tones'],
+    prompt: '<p>How many tones do you hear?</p>',
+    data: {
+            task: 'response',
+            correct_response: jsPsych.timelineVariable('correct_response')
+        },
+        on_finish: function(data){
+            data.correct = jsPsych.pluginAPI.compareKeys(data.response, data.correct_response);
+        }
+  };
+
+  var test_procedure = { /* includes test and fixation variables */
+    timeline: [audio_trial],
+    timeline_variables: test_stimuli,
+    randomize_order: true
+    }
+
+  /* timeline.push(test_procedure); */
+
+  /* data aggregation */ 
+  var debrief_block = {
+        type: jsPsychHtmlKeyboardResponse,
+        stimulus: function() {
+
+            var trials = jsPsych.data.get().filter({task: 'response'});
+            var correct_trials = trials.filter({correct: true});
+            var accuracy = Math.round(correct_trials.count() / trials.count() * 100);
+            var rt = Math.round(correct_trials.select('rt').mean());
+
+            return `<p>You responded correctly on ${accuracy}% of the trials.</p>
+            <p>Your average response time was ${rt} ms.</p>
+            <p>Press any key to complete the experiment. Thank you!</p>`;
+
+        }
+        };
+    
+  /* timeline.push(debrief_block);*/
+
+  jsPsych.run([pre_audio, test_procedure, debrief_block]);
+
+</script>
+</html>
