@@ -2,12 +2,12 @@
 <html>
   <head>
     <title>Experiment</title>
-    <script src="jspsych/jspsych.js"></script>
-    <script src="jspsych/plugin-html-keyboard-response.js"></script>
+    <script src="../jspsych/jspsych.js"></script>
+    <script src="../jspsych/plugin-html-keyboard-response.js"></script>
     <script src="https://unpkg.com/@jspsych/plugin-image-keyboard-response@1.1.1"></script>
-    <script src="jspsych/plugin-video-keyboard-response.js"></script>
+    <script src="../jspsych/plugin-video-keyboard-response.js"></script>
     <script src="https://unpkg.com/@jspsych/plugin-preload@1.1.1"></script>
-    <link href="jspsych/jspsych.css" rel="stylesheet" type="text/css" />
+    <link href="../jspsych/jspsych.css" rel="stylesheet" type="text/css" />
   </head>
   <body></body>
   <script>
@@ -107,5 +107,7 @@
     timeline.push(rb_trial, task); 
     timeline.push(rgb_trial, task); 
 
+    /* start the experiment */
+    jsPsych.run(timeline);
   </script>
 </html>
